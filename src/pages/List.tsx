@@ -10,7 +10,6 @@ const SESSION_ITEM = {
 
 export function List() {
     const [retry, setRetry] = useState<number>(0);
-    // const [totalCost, setTotalCost] = useState<number>(0);
     const [chompedDonuts, setChompedDonuts] = useState<Set<number>>(
         new Set(JSON.parse(sessionStorage.getItem(SESSION_ITEM.CHOMPED_DONUTS) ?? "[]"))
     );
@@ -54,7 +53,7 @@ export function List() {
         }
     }, [donuts, chompedDonuts]);
 
-    const handleChomp = (id: number, price: number) => {
+    const handleChomp = (id: number) => {
         setChompedDonuts((prev) => new Set(prev).add(id));
     };
 
@@ -129,7 +128,7 @@ export function List() {
                                                 className={`flex justify-center items-center ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
                                             >
                                                 <button
-                                                    onClick={() => handleChomp(donut.id, donut.price)}
+                                                    onClick={() => handleChomp(donut.id)}
                                                     className="px-4 py-2 rounded"
                                                     disabled={chompedDonuts.has(donut.id)}
                                                 >
