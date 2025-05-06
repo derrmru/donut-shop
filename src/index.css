@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+html,
+body {
+  @apply text-lg;
+}
+
+
+@layer base {
+  h1 {
+    @apply text-4xl my-4 font-bold text-center;
+  }
+
+  h2 {
+    @apply text-2xl my-4 font-medium text-center;
+  }
+}
+
+@layer components {
+  button {
+    @apply px-4 py-2 border rounded cursor-pointer hover:bg-white hover:text-blue-900 transition duration-200 ease-in-out;
+  }
+
+  button:disabled {
+    @apply bg-gray-300 text-gray-400 cursor-not-allowed;
+  }
+
+  .hover-wiggle {
+    animation: none;
+    transition: animation 0.3s ease-out;
+  }
+
+  .hover-wiggle:hover {
+    animation: wiggle 2s ease-in-out;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
+  }
+}
+
+@layer utilities {
+  .bg-pink-900 {
+    background-color: #FFDCFA;
+  }
+
+  .bg-blue-900 {
+    background-color: #2069FA;
+  }
+}
+
+@theme {
+
+  --breakpoint-sm: 640px;
+  --breakpoint-lg: 1024px;
+
+  @keyframes spin-slow {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes wiggle {
+
+    0% {
+      transform: rotate(0);
+    }
+
+    12.5% {
+      transform: rotate(3deg);
+    }
+
+    37.5% {
+      transform: rotate(-3deg);
+    }
+
+    62.5% {
+      transform: rotate(3deg);
+    }
+
+    87.5% {
+      transform: rotate(-3deg);
+    }
+
+    100% {
+      transform: rotate(0);
+    }
+  }
+}
