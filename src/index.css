@@ -2,7 +2,7 @@
 
 html,
 body {
-  @apply text-lg;
+  @apply text-lg font-mono;
 }
 
 

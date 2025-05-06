@@ -1,8 +1,7 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Fragment } from "react";
 import { SpinningLoader } from "../components/SpinningLoader";
+import { Snackbar } from "../components/Snackbar";
 import { Donut, useGetDonuts } from "../hooks/useGetDonuts";
-
-const borderStyle = "border px-4 py-2";
 
 const SESSION_ITEM = {
     CHOMPED_DONUTS: "chompedDonuts",
@@ -11,7 +10,7 @@ const SESSION_ITEM = {
 
 export function List() {
     const [retry, setRetry] = useState<number>(0);
-    const [totalCost, setTotalCost] = useState<number>(0);
+    // const [totalCost, setTotalCost] = useState<number>(0);
     const [chompedDonuts, setChompedDonuts] = useState<Set<number>>(
         new Set(JSON.parse(sessionStorage.getItem(SESSION_ITEM.CHOMPED_DONUTS) ?? "[]"))
     );
@@ -56,21 +55,29 @@ export function List() {
     }, [donuts, chompedDonuts]);
 
     const handleChomp = (id: number, price: number) => {
-        setTotalCost((prev) => prev + price);
         setChompedDonuts((prev) => new Set(prev).add(id));
     };
 
     const handleReset = () => {
-        setTotalCost(0);
         setChompedDonuts(new Set());
         sessionStorage.removeItem(SESSION_ITEM.CHOMPED_DONUTS);
         sessionStorage.removeItem(SESSION_ITEM.DONUTS);
     };
 
+    const totalCost = useMemo(() => {
+        return [...chompedDonuts].reduce((acc, id) => {
+            const donut = activeDonuts.find((d) => d.id === id);
+            if (donut) {
+                return acc + donut.price;
+            }
+            return acc;
+        }, 0)
+    }, [chompedDonuts])
+
     return (
         <div className="flex flex-col">
             {loading && <SpinningLoader />}
-            {!hasDonuts && <h1 className="text-center font-bold mb-4">Sadly we have no available donuts at this time.</h1>}
+            {!hasDonuts && !error && <h1 className="text-center font-bold my-4">Sadly we have no available donuts at this time.</h1>}
             {!loading && !error && (
                 <>
                     {hasDonuts && (
@@ -81,80 +88,87 @@ export function List() {
                                     Built to destroy diets and hearts, one bite at a time.
                                 </h2>
                             </div>
-                            <div className="overflow-x-auto w-11/12 mx-auto">
-                                <div className="my-4 text-right flex justify-end items-center">
-                                    {hasChompedAllDonuts && <div className="font-bold mr-4">Such wow! You have chomped all the donuts! Why not have another go!</div>}
+                            <div className="w-11/12 mx-auto">
+                                <div className="my-4 grid grid-cols-4 gap-4 items-center">
+                                    <div className="font-bold col-span-3" />
                                     <button
                                         disabled={chompedDonuts.size === 0}
                                         onClick={handleReset}
-                                        className="px-4 py-2 rounded"
+                                        className="px-4 py-2 my-4 mx-auto rounded col-span-1 w-full md:w-1/2"
                                     >
                                         Reset
                                     </button>
                                 </div>
-                                {/**
-                                 * I would normally lean towards a component library for a table, which have
-                                 * Virtualizated Rows, pagination, accessibility etc. outof the box
-                                 * But here I am just using a simple html table for simplicity
-                                 */}
-                                <table className="table-auto w-full border-collapse border">
-                                    <thead>
-                                        <tr>
-                                            <th className={borderStyle}>Image</th>
-                                            <th className={borderStyle}>Name</th>
-                                            <th className={borderStyle}>Price</th>
-                                            <th className={borderStyle}>Chomp-a-donut</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {activeDonuts.map((donut) => (
-                                            <tr
-                                                key={donut.name}
-                                                className={`text-center ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
+                                <div className="grid grid-cols-4 gap-4 w-full">
+                                    <div className="font-bold text-center">Image</div>
+                                    <div className="font-bold text-center">Name</div>
+                                    <div className="font-bold text-center">Price</div>
+                                    <div className="font-bold text-center">Chomp-a-donut</div>
+                                    {activeDonuts.map((donut) => (
+                                        <Fragment key={donut.id}>
+                                            <div
+                                                className={`flex items-center py-4 ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
                                             >
-                                                <td className={`${borderStyle} py-4`}>
-                                                    <img
-                                                        src={`/${donut.imageName}.svg`}
-                                                        alt={donut.name}
-                                                        className="w-24 object-cover mx-auto"
-                                                    />
-                                                </td>
-                                                <td className={borderStyle}>{donut.name}</td>
-                                                <td className={borderStyle}>£{donut.price}</td>
-                                                <td className={borderStyle}>
-                                                    <button
-                                                        onClick={() => handleChomp(donut.id, donut.price)}
-                                                        className="px-4 py-2 rounded"
-                                                        disabled={chompedDonuts.has(donut.id)}
-                                                    >
-                                                        Chomp
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                <img
+                                                    src={`/${donut.imageName}.svg`}
+                                                    alt={donut.name}
+                                                    className="w-24 object-cover mx-auto"
+                                                />
+                                            </div>
+                                            <div
+                                                className={`flex justify-center items-center ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
+                                            >
+                                                {donut.name}
+                                            </div>
+                                            <div
+                                                className={`flex justify-center items-center ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
+                                            >
+                                                £{donut.price}
+                                            </div>
+                                            <div
+                                                className={`flex justify-center items-center ${chompedDonuts.has(donut.id) ? "opacity-50" : ""}`}
+                                            >
+                                                <button
+                                                    onClick={() => handleChomp(donut.id, donut.price)}
+                                                    className="px-4 py-2 rounded"
+                                                    disabled={chompedDonuts.has(donut.id)}
+                                                >
+                                                    Chomp
+                                                </button>
+                                            </div>
+                                        </Fragment>
+                                    ))}
+                                </div>
                             </div>
                         </>
                     )}
-                    <div className="w-11/12 flex justify-end mt-4 mx-auto">
-                        <div className="w-1/3 flex justify-end p-4">
-                            <h3 className="text-right text-xl">Total Cost: £{totalCost.toFixed(2)}</h3>
+                    <div className="w-11/12 grid grid-cols-4 gap-4 mx-auto mb-16">
+                        <div className="col-span-3" />
+                        <div className="col-span-1 p-4">
+                            <h3 className="text-center text-xl">Total Cost: £{totalCost.toFixed(2)}</h3>
                         </div>
                     </div>
                 </>
             )}
-            {error && (
-                <div className="py-12 flex flex-wrap justify-center">
-                    <h1 className="w-full text-red-500">Failed to load donuts.</h1>
-                    <button
-                        onClick={() => setRetry((prev) => prev + 1)}
-                        className="mt-4 px-4 py-2 bg-blue-500 rounded hover:bg-blue-600"
-                    >
-                        Retry
-                    </button>
-                </div>
-            )}
+            {
+                error && (
+                    <div className="py-12 flex flex-wrap justify-center">
+                        <h1 className="w-full text-red-500">Failed to load donuts.</h1>
+                        <button
+                            onClick={() => setRetry((prev) => prev + 1)}
+                            className="mt-4 px-4 py-2 bg-blue-500 rounded hover:bg-blue-600"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )
+            }
+            <Snackbar
+                message="Such wow! You have chomped all the donuts! Why not have another go!"
+                open={hasChompedAllDonuts}
+                onClose={handleReset}
+                closeMessage="Reset"
+            />
         </div>
-    );
+    )
 }
