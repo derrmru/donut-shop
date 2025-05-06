@@ -17,7 +17,7 @@ export function Snackbar({ message, open = false, onClose, closeMessage = "Close
                     className={`${themeClasses} border fixed z-40 bottom-4 left-4 px-4 py-2 rounded shadow-lg max-w-11/12 grid grid-cols-[1fr_auto] items-center gap-4`}
                 >
                     <span>{message}</span>
-                    <button onClick={onClose} className="px-4 py-2 bg-blue-600 text-white rounded">
+                    <button onClick={onClose} className={`${themeClasses} hover:bg-white px-4 py-2 rounded`}>
                         {closeMessage}
                     </button>
                 </motion.div>
