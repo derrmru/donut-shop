@@ -15,7 +15,6 @@ export function Menu({ theme }: { theme: Theme }) {
     const isMediumOrLarger = window.innerWidth >= 640;
 
     // we could debounce this resize event but for the sake of simplicity we will just use a simple resize event
-    // this will be called on mount and on resize
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 640) {
